@@ -133,6 +133,21 @@ export async function getConversationMeta(uid, profileId, language) {
   return snap.exists() ? snap.data() : null;
 }
 
+export async function clearConversation(uid, profileId, language) {
+  const messagesRef = collection(
+    db, 'users', uid, 'profiles', profileId, 'conversations', language, 'messages'
+  );
+  const snap = await getDocs(messagesRef);
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  await setDoc(
+    doc(db, 'users', uid, 'profiles', profileId, 'conversations', language),
+    { summary: null, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
+}
+
 // Progress / scores
 export async function saveActivityScore(uid, profileId, language, activityType, score) {
   await addDoc(

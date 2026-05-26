@@ -505,6 +505,82 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
   border-bottom: 1px solid var(--border);
 }
 .lang-tag { font-size: 13px; font-weight: 500; }
+.toolbar-actions { display: flex; gap: 4px; align-items: center; }
+
+/* ===== TOPIC SELECTION ===== */
+.topics-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  gap: 16px;
+}
+.topics-label {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.news-pill {
+  background: rgba(137,180,250,0.1);
+  border: 1px solid rgba(137,180,250,0.25);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--accent2);
+  line-height: 1.4;
+  width: 100%;
+  max-width: 360px;
+}
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+.topic-card {
+  padding: 16px 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.15s;
+  line-height: 1.3;
+}
+.topic-card:hover { border-color: var(--accent); background: rgba(203,166,247,0.08); transform: translateX(4px); }
+
+/* ===== CORRECTIONS ===== */
+.correction-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 80%;
+  margin: 2px 0 10px auto;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border-top-right-radius: 4px;
+  font-size: 13px;
+}
+.correction-card.has-error {
+  background: rgba(243,139,168,0.08);
+  border: 1px solid rgba(243,139,168,0.25);
+}
+.correction-card.perfect {
+  background: rgba(166,227,161,0.08);
+  border: 1px solid rgba(166,227,161,0.2);
+}
+.correction-label { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.correction-body { flex: 1; min-width: 0; }
+.correction-diff { display: flex; flex-wrap: wrap; gap: 2px; line-height: 1.6; margin-bottom: 5px; }
+.diff-ok { color: var(--text); }
+.diff-wrong { color: var(--red); text-decoration: line-through; opacity: 0.8; }
+.diff-fix { color: var(--green); font-weight: 600; }
+.correction-note { font-size: 12px; color: var(--text-muted); }
+.correction-perfect { color: var(--green); font-size: 12px; font-weight: 500; }
 
 .convo-header {
   display: flex;
