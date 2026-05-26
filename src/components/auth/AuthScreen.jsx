@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function AuthScreen() {
-  const { login, registerWithCode } = useAuth();
+  const { user, login, registerWithCode } = useAuth();
+
+  if (user) return <Navigate to="/" replace />;
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

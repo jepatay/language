@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
         } else {
           setUser(firebaseUser);
           setUserDoc(doc);
-          updateUserLastActive(firebaseUser.uid);
+          if (doc) updateUserLastActive(firebaseUser.uid).catch(() => {});
         }
       } else {
         setUser(null);
