@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { chatCompletion } from '../../utils/openai';
 import { buildOnboardingPrompt } from '../../utils/prompts';
 import { SUPPORTED_LANGUAGES, NATIVE_LANGUAGES } from '../../data/languages';
+import KeywordsInput from './KeywordsInput';
 import toast from 'react-hot-toast';
 
 export default function ProfileOnboarding() {
@@ -16,7 +17,7 @@ export default function ProfileOnboarding() {
   const [selectedLangs, setSelectedLangs] = useState([]);
   const [currentAssessLang, setCurrentAssessLang] = useState(null);
   const [assessIdx, setAssessIdx] = useState(0);
-  const [keywords, setKeywords] = useState('');
+  const [keywords, setKeywords] = useState([]);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,13 +46,9 @@ export default function ProfileOnboarding() {
 
   async function startAssessmentChat(lang) {
     setLoading(true);
-    const profile = { name, nativeLanguage, keywords: keywords.split(',').map(k => k.trim()).filter(Boolean) };
+    const profile = { name, nativeLanguage, keywords };
     const systemPrompt = buildOnboardingPrompt({ profile, language: lang });
     try {
-      const reply = await chatCompletion([{ role: 'user', content: 'Hello, I am ready for my assessment.' }], {
-        model: 'gpt-4o',
-      });
-      // Use the system prompt approach properly
       const firstMsg = await chatCompletion([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Hi! I want to start my language assessment.' }
@@ -71,7 +68,7 @@ export default function ProfileOnboarding() {
     setMessages(newMessages);
     setLoading(true);
 
-    const profile = { name, nativeLanguage, keywords: keywords.split(',').map(k => k.trim()).filter(Boolean) };
+    const profile = { name, nativeLanguage, keywords };
     const systemPrompt = buildOnboardingPrompt({ profile, language: currentAssessLang });
 
     try {
@@ -124,7 +121,7 @@ export default function ProfileOnboarding() {
         name,
         nativeLanguage,
         languages: langData,
-        keywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+        keywords,
       });
       switchProfile(profile);
       navigate('/');
@@ -156,12 +153,8 @@ export default function ProfileOnboarding() {
           </div>
 
           <div className="field-group">
-            <label>Your interests (comma-separated)</label>
-            <input
-              value={keywords}
-              onChange={e => setKeywords(e.target.value)}
-              placeholder="NBA, cooking, travel, Wembanyama..."
-            />
+            <label>Your interests</label>
+            <KeywordsInput keywords={keywords} onChange={setKeywords} />
             <span className="field-hint">These help personalize your lessons</span>
           </div>
 

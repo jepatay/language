@@ -15,6 +15,14 @@ export const SUPPORTED_LANGUAGES = {
     whisperCode: 'da',
     ttsVoice: 'alloy',
   },
+  'fr-FR': {
+    code: 'fr-FR',
+    name: 'French',
+    nativeName: 'Français',
+    flag: '🇫🇷',
+    whisperCode: 'fr',
+    ttsVoice: 'shimmer',
+  },
 };
 
 export const NATIVE_LANGUAGES = [

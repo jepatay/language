@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { SUPPORTED_LANGUAGES, NATIVE_LANGUAGES } from '../../data/languages';
 import { LEVEL_DESCRIPTORS } from '../../data/levelDescriptors';
+import KeywordsInput from './KeywordsInput';
 import toast from 'react-hot-toast';
 import Header from '../layout/Header';
 import BottomNav from '../layout/BottomNav';
@@ -15,7 +16,7 @@ export default function ProfileSettings() {
 
   const [name, setName] = useState(activeProfile?.name || '');
   const [nativeLang, setNativeLang] = useState(activeProfile?.nativeLanguage || 'en');
-  const [keywords, setKeywords] = useState((activeProfile?.keywords || []).join(', '));
+  const [keywords, setKeywords] = useState(activeProfile?.keywords || []);
   const [saving, setSaving] = useState(false);
 
   if (!activeProfile) return <div className="loading-screen"><div className="spinner" /></div>;
@@ -28,7 +29,7 @@ export default function ProfileSettings() {
       await updateActiveProfile({
         name: name.trim(),
         nativeLanguage: nativeLang,
-        keywords: keywords.split(',').map(k => k.trim()).filter(Boolean),
+        keywords,
       });
       toast.success('Profile saved!');
     } catch {
@@ -95,13 +96,8 @@ export default function ProfileSettings() {
           </div>
           <div className="field-group">
             <label>Interests & Keywords</label>
-            <textarea
-              value={keywords}
-              onChange={e => setKeywords(e.target.value)}
-              placeholder="NBA, Wembanyama, cooking, travel..."
-              rows={3}
-            />
-            <span className="field-hint">Separate with commas — used to personalize your lessons</span>
+            <KeywordsInput keywords={keywords} onChange={setKeywords} />
+            <span className="field-hint">Used to personalize your lessons</span>
           </div>
           <button className="btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? 'Saving...' : 'Save Changes'}
