@@ -23,22 +23,29 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const doc = await getUserDoc(firebaseUser.uid);
-        if (doc && doc.active === false) {
-          await signOut(auth);
+      try {
+        if (firebaseUser) {
+          const doc = await getUserDoc(firebaseUser.uid);
+          if (doc && doc.active === false) {
+            await signOut(auth);
+            setUser(null);
+            setUserDoc(null);
+          } else {
+            setUser(firebaseUser);
+            setUserDoc(doc);
+            if (doc) updateUserLastActive(firebaseUser.uid).catch(() => {});
+          }
+        } else {
           setUser(null);
           setUserDoc(null);
-        } else {
-          setUser(firebaseUser);
-          setUserDoc(doc);
-          if (doc) updateUserLastActive(firebaseUser.uid).catch(() => {});
         }
-      } else {
-        setUser(null);
+      } catch {
+        // Firestore failed — keep user logged in, just skip the doc
+        setUser(firebaseUser);
         setUserDoc(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
     return unsub;
   }, []);
