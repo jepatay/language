@@ -56,3 +56,28 @@ export async function parseJsonResponse(content) {
   const jsonStr = match ? match[1] : content;
   return JSON.parse(jsonStr.trim());
 }
+
+export async function fetchRecentNews(keywords) {
+  if (!keywords || keywords.length === 0) return null;
+  const topics = keywords.slice(0, 3).join(', ');
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  const res = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      tools: [{ type: 'web_search_preview' }],
+      input: `Today is ${today}. Search for the most recent news from the last 48 hours about: ${topics}. Return a single concise 2-sentence summary of the most interesting recent development. Include the date or "yesterday/today" if relevant. Be specific — no vague generalities.`,
+    }),
+  });
+
+  if (!res.ok) return null;
+  const data = await res.json();
+  const message = data.output?.find(item => item.type === 'message');
+  const text = message?.content?.find(c => c.type === 'output_text')?.text;
+  return text?.trim() || null;
+}

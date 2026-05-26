@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { chatCompletion, transcribeAudio, textToSpeech } from '../../utils/openai';
+import { chatCompletion, transcribeAudio, textToSpeech, fetchRecentNews } from '../../utils/openai';
 import { buildSystemPrompt } from '../../utils/prompts';
 import { saveMessage, getMessages, getConversationMeta } from '../../firebase/firestore';
 import { SUPPORTED_LANGUAGES } from '../../data/languages';
@@ -56,10 +56,18 @@ export default function VoiceConversation({ onSwitchText }) {
 
   async function greetUser(existingSummary) {
     setProcessing(true);
+    const keywords = activeProfile.keywords || [];
+    let newsContext = '';
+
+    if (!existingSummary && keywords.length > 0) {
+      const news = await fetchRecentNews(keywords).catch(() => null);
+      if (news) newsContext = `\n\nFRESH NEWS TO USE AS OPENER: "${news}" — use this as your conversation starter. Keep it short for voice.`;
+    }
+
     const systemPrompt = buildSystemPrompt({ profile: activeProfile, language: activeLanguage, mode: 'voice' });
     const context = existingSummary
       ? `[Previous session summary: ${existingSummary}] Give a short warm greeting continuing from before.`
-      : 'Give a short, warm voice greeting and start the conversation with something interesting.';
+      : `Give a short warm voice greeting and start with a topic the learner cares about.${newsContext}`;
 
     try {
       const text = await chatCompletion([

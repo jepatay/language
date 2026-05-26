@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { chatCompletion } from '../../utils/openai';
+import { chatCompletion, fetchRecentNews } from '../../utils/openai';
 import { buildSystemPrompt } from '../../utils/prompts';
 import { saveMessage, getMessages, saveConversationSummary, getConversationMeta } from '../../firebase/firestore';
 import { SUPPORTED_LANGUAGES } from '../../data/languages';
@@ -15,6 +15,7 @@ export default function TextConversation({ onSwitchVoice }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [summary, setSummary] = useState('');
   const chatEndRef = useRef(null);
@@ -30,10 +31,10 @@ export default function TextConversation({ onSwitchVoice }) {
       const formatted = msgs.map(m => ({ role: m.role, content: m.content }));
       setMessages(formatted);
       if (formatted.length === 0) {
-        startConversation(meta?.summary);
+        await startConversation(meta?.summary);
       }
     } catch {
-      startConversation();
+      await startConversation();
     }
     setInitialized(true);
   }, [user, activeProfile, activeLanguage]);
@@ -51,10 +52,20 @@ export default function TextConversation({ onSwitchVoice }) {
 
   async function startConversation(existingSummary) {
     setLoading(true);
+    const keywords = activeProfile.keywords || [];
+    let newsContext = '';
+
+    if (!existingSummary && keywords.length > 0) {
+      setLoadingStatus('Fetching today\'s news...');
+      const news = await fetchRecentNews(keywords).catch(() => null);
+      if (news) newsContext = `\n\nFRESH NEWS TO USE AS OPENER: "${news}" — weave this naturally into your opening as a conversation starter.`;
+    }
+
+    setLoadingStatus('');
     const systemPrompt = buildSystemPrompt({ profile: activeProfile, language: activeLanguage, mode: 'text' });
     const context = existingSummary
-      ? `[Previous session summary: ${existingSummary}] Start with a brief, warm continuation.`
-      : 'Start the conversation with a warm greeting and an interesting opening question or topic related to the learner\'s interests.';
+      ? `[Previous session summary: ${existingSummary}] Start with a brief warm continuation.`
+      : `Start with a warm greeting and dive straight into a topic the learner cares about.${newsContext}`;
 
     try {
       const reply = await chatCompletion([
@@ -95,7 +106,6 @@ export default function TextConversation({ onSwitchVoice }) {
       setMessages(finalMessages);
       await saveMessage(user.uid, activeProfile.id, activeLanguage, aiMsg);
 
-      // Summarize if getting long
       if (finalMessages.length > MAX_FULL_MESSAGES) {
         summarizeOldMessages(finalMessages);
       }
@@ -145,7 +155,12 @@ export default function TextConversation({ onSwitchVoice }) {
         ))}
         {loading && (
           <div className="message assistant">
-            <div className="bubble typing"><span /><span /><span /></div>
+            <div className="bubble typing">
+              {loadingStatus
+                ? <span className="loading-status">{loadingStatus}</span>
+                : <><span /><span /><span /></>
+              }
+            </div>
           </div>
         )}
         <div ref={chatEndRef} />
