@@ -138,33 +138,35 @@ export default function ProfileOnboarding() {
         <div className="page-content center-content">
           <h2 className="page-title">Create Profile</h2>
 
-          <div className="field-group">
-            <label>Your name</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Jeremy" />
-          </div>
+          <div className="onboarding-form">
+            <div className="field-group">
+              <label>Your name</label>
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Jeremy" />
+            </div>
 
-          <div className="field-group">
-            <label>Your native language</label>
-            <select value={nativeLanguage} onChange={e => setNativeLanguage(e.target.value)}>
-              {NATIVE_LANGUAGES.map(l => (
-                <option key={l.code} value={l.code}>{l.name}</option>
-              ))}
-            </select>
-          </div>
+            <div className="field-group">
+              <label>Your native language</label>
+              <select value={nativeLanguage} onChange={e => setNativeLanguage(e.target.value)}>
+                {NATIVE_LANGUAGES.map(l => (
+                  <option key={l.code} value={l.code}>{l.name}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="field-group">
-            <label>Your interests</label>
-            <KeywordsInput keywords={keywords} onChange={setKeywords} />
-            <span className="field-hint">These help personalize your lessons</span>
-          </div>
+            <div className="field-group">
+              <label>Your interests</label>
+              <KeywordsInput keywords={keywords} onChange={setKeywords} />
+              <span className="field-hint">These help personalize your lessons</span>
+            </div>
 
-          <button
-            className="btn-primary btn-full"
-            onClick={() => setStep('language')}
-            disabled={!name.trim()}
-          >
-            Next →
-          </button>
+            <button
+              className="btn-primary btn-full"
+              onClick={() => setStep('language')}
+              disabled={!name.trim()}
+            >
+              Next →
+            </button>
+          </div>
         </div>
       </div>
     );

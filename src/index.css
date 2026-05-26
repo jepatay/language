@@ -205,14 +205,24 @@ a { color: var(--accent); text-decoration: none; }
 .icon-btn:hover { background: var(--surface); }
 .back-btn { color: var(--accent2); font-size: 14px; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 4px; }
 
+/* ===== ONBOARDING FORM ===== */
+.onboarding-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* ===== KEYWORDS TAG INPUT ===== */
-.keywords-field { display: flex; flex-direction: column; gap: 10px; }
+.keywords-field { display: flex; flex-direction: column; gap: 10px; width: 100%; }
 
 .keywords-input-row {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
-.keywords-input-row input { flex: 1; width: auto; }
+.keywords-input-row input { flex: 1; width: 0; min-width: 0; }
 
 .add-kw-btn {
   padding: 10px 14px;
@@ -233,6 +243,7 @@ a { color: var(--accent); text-decoration: none; }
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  width: 100%;
 }
 
 .kw-tag {
