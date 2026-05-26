@@ -1,0 +1,40 @@
+export const SUPPORTED_LANGUAGES = {
+  'pt-BR': {
+    code: 'pt-BR',
+    name: 'Brazilian Portuguese',
+    nativeName: 'Português (Brasil)',
+    flag: '🇧🇷',
+    whisperCode: 'pt',
+    ttsVoice: 'nova',
+  },
+  'da-DK': {
+    code: 'da-DK',
+    name: 'Danish',
+    nativeName: 'Dansk',
+    flag: '🇩🇰',
+    whisperCode: 'da',
+    ttsVoice: 'alloy',
+  },
+};
+
+export const NATIVE_LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'fr', name: 'French' },
+  { code: 'es', name: 'Spanish' },
+  { code: 'de', name: 'German' },
+  { code: 'it', name: 'Italian' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'zh', name: 'Chinese (Mandarin)' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'sv', name: 'Swedish' },
+  { code: 'no', name: 'Norwegian' },
+  { code: 'da', name: 'Danish' },
+  { code: 'fi', name: 'Finnish' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'hi', name: 'Hindi' },
+];
