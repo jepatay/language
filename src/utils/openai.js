@@ -84,10 +84,11 @@ Segments rules:
 }
 
 export async function generateTopicSuggestions(keywords, languageName, newsSnippet) {
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const newsHint = newsSnippet
     ? `One topic should relate to this recent news: "${newsSnippet.slice(0, 120)}"`
-    : '';
-  const prompt = `Generate exactly 3 short conversation topic suggestions for a ${languageName} learner.
+    : `No live news was available, so favor angles that are timely for right now (this week/month/season) rather than generic evergreen topics — e.g. what's currently happening in these interests, not something that could apply to any point in the last few years.`;
+  const prompt = `Today's date is ${today}. Generate exactly 3 short conversation topic suggestions for a ${languageName} learner.
 Their interests: ${keywords.length > 0 ? keywords.join(', ') : 'general topics'}.
 ${newsHint}
 Make them specific, fun, and varied. Max 6 words each. Include a relevant emoji at the start.
@@ -111,7 +112,7 @@ export async function fetchRecentNews(keywords) {
     },
     body: JSON.stringify({
       model: 'gpt-4o',
-      tools: [{ type: 'web_search_preview' }],
+      tools: [{ type: 'web_search' }],
       input: `Today is ${today}. Search for the most recent news from the last 48 hours about: ${topics}. Return a single concise 2-sentence summary of the most interesting recent development. Include the date or "yesterday/today" if relevant. Be specific — no vague generalities.`,
     }),
   });
@@ -121,4 +122,31 @@ export async function fetchRecentNews(keywords) {
   const message = data.output?.find(item => item.type === 'message');
   const text = message?.content?.find(c => c.type === 'output_text')?.text;
   return text?.trim() || null;
+}
+
+export async function generateReplySuggestions({ languageName, level, levelLabel, keywords, recentMessages }) {
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const context = (recentMessages || [])
+    .slice(-6)
+    .map(m => `${m.role === 'assistant' ? 'Coach' : 'Learner'}: ${m.content}`)
+    .join('\n');
+
+  const prompt = `Today's date is ${today}. A ${languageName} learner (level ${level}/10, ${levelLabel}) wants ideas for what to say next in this conversation.
+
+RECENT CONVERSATION:
+${context || '(conversation just started)'}
+
+Their interests: ${keywords.length > 0 ? keywords.join(', ') : 'general topics'}
+
+Generate exactly 4 short suggestions for what the learner could say or ask next, in ${languageName}. Mix it up:
+- 1-2 direct replies that continue the current thread
+- 1-2 fresh pivots — a related question, story idea, or new angle tied to their interests
+
+Keep vocabulary and grammar appropriate for level ${level}. Vary sentence types (statements, questions).
+
+JSON only: {"suggestions": [{"text": "<phrase in ${languageName}>", "translation": "<short English translation>"}]}`;
+
+  const raw = await chatCompletion([{ role: 'user', content: prompt }], { temperature: 0.9 });
+  const data = await parseJsonResponse(raw);
+  return data.suggestions || [];
 }

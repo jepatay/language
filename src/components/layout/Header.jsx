@@ -6,7 +6,7 @@ import { SUPPORTED_LANGUAGES } from '../../data/languages';
 
 export default function Header({ title }) {
   const { userDoc } = useAuth();
-  const { activeProfile, activeLanguage, switchLanguage } = useProfile();
+  const { activeProfile, activeLanguage } = useProfile();
   const [showSwitcher, setShowSwitcher] = useState(false);
 
   const lang = activeLanguage ? SUPPORTED_LANGUAGES[activeLanguage] : null;

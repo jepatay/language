@@ -19,11 +19,14 @@ export default function SpeedRound() {
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState(0);
-  const [totalRounds, setTotalRounds] = useState(0);
   const [choices, setChoices] = useState([]);
   const timerRef = useRef(null);
 
   const lang = activeLanguage ? SUPPORTED_LANGUAGES[activeLanguage] : null;
+
+  function handleTimeout() {
+    handleAnswer(null);
+  }
 
   useEffect(() => {
     if (phase === 'playing') {
@@ -94,14 +97,9 @@ export default function SpeedRound() {
     }
   }
 
-  function handleTimeout() {
-    handleAnswer(null);
-  }
-
   function finishGame(finalAnswers) {
     const totalPts = finalAnswers.reduce((sum, a) => sum + a.pts, 0);
     setScore(prev => prev + totalPts);
-    setTotalRounds(prev => prev + 1);
     setPhase('results');
     saveActivityScore(user.uid, activeProfile.id, activeLanguage, 'speed-round', totalPts).catch(() => {});
   }

@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { chatCompletion, fetchRecentNews, correctMessage, generateTopicSuggestions } from '../../utils/openai';
+import { chatCompletion, fetchRecentNews, correctMessage, generateTopicSuggestions, generateReplySuggestions } from '../../utils/openai';
 import { buildSystemPrompt } from '../../utils/prompts';
 import {
   saveMessage, getMessages, saveConversationSummary,
   getConversationMeta, clearConversation,
 } from '../../firebase/firestore';
 import { SUPPORTED_LANGUAGES } from '../../data/languages';
+import { LEVEL_DESCRIPTORS } from '../../data/levelDescriptors';
 import toast from 'react-hot-toast';
 
 const MAX_FULL_MESSAGES = 20;
@@ -48,6 +49,9 @@ export default function TextConversation({ onSwitchVoice }) {
   const [loading, setLoading] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState('');
   const [summary, setSummary] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const chatEndRef = useRef(null);
 
   const lang = activeLanguage ? SUPPORTED_LANGUAGES[activeLanguage] : null;
@@ -76,6 +80,8 @@ export default function TextConversation({ onSwitchVoice }) {
     setSummary('');
     setTopics([]);
     setNewsSnippet('');
+    setSuggestions([]);
+    setSuggestionsOpen(false);
     loadHistory();
   }, [activeProfile?.id, activeLanguage]);
 
@@ -145,10 +151,41 @@ export default function TextConversation({ onSwitchVoice }) {
     await initTopics();
   }
 
+  async function toggleSuggestions() {
+    if (suggestionsOpen) {
+      setSuggestionsOpen(false);
+      return;
+    }
+    setSuggestionsOpen(true);
+    setSuggestionsLoading(true);
+    try {
+      const level = activeProfile.languages?.[activeLanguage]?.level || 1;
+      const levelInfo = LEVEL_DESCRIPTORS[level];
+      const result = await generateReplySuggestions({
+        languageName: lang?.name || activeLanguage,
+        level,
+        levelLabel: levelInfo?.label || '',
+        keywords: activeProfile.keywords || [],
+        recentMessages: messages,
+      });
+      setSuggestions(result);
+    } catch {
+      toast.error('Could not load suggestions.');
+      setSuggestions([]);
+    }
+    setSuggestionsLoading(false);
+  }
+
+  function applySuggestion(text) {
+    setInput(text);
+    setSuggestionsOpen(false);
+  }
+
   async function sendMessage() {
     if (!input.trim() || loading) return;
     const text = input.trim();
     setInput('');
+    setSuggestionsOpen(false);
     const userMsg = { role: 'user', content: text };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
@@ -272,7 +309,33 @@ export default function TextConversation({ onSwitchVoice }) {
             <div ref={chatEndRef} />
           </div>
 
+          {suggestionsOpen && (
+            <div className="suggestions-panel">
+              {suggestionsLoading ? (
+                <div className="spinner small" />
+              ) : suggestions.length > 0 ? (
+                suggestions.map((s, i) => (
+                  <button key={i} className="suggestion-chip" onClick={() => applySuggestion(s.text)}>
+                    <span className="suggestion-text">{s.text}</span>
+                    <span className="suggestion-translation">{s.translation}</span>
+                  </button>
+                ))
+              ) : (
+                <span className="loading-status">No suggestions right now — try again.</span>
+              )}
+            </div>
+          )}
+
           <div className="input-row">
+            <button
+              className={`icon-btn suggest-btn ${suggestionsOpen ? 'active' : ''}`}
+              onClick={toggleSuggestions}
+              disabled={loading}
+              title="Suggest what to say"
+              aria-label="Suggest what to say"
+            >
+              +
+            </button>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}

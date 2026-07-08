@@ -6,12 +6,13 @@ import toast from 'react-hot-toast';
 export default function AuthScreen() {
   const { user, login, registerWithCode } = useAuth();
 
-  if (user) return <Navigate to="/" replace />;
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
+
+  if (user) return <Navigate to="/" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { SUPPORTED_LANGUAGES, NATIVE_LANGUAGES } from '../../data/languages';
 import { LEVEL_DESCRIPTORS } from '../../data/levelDescriptors';
 import KeywordsInput from './KeywordsInput';
@@ -12,7 +11,6 @@ import BottomNav from '../layout/BottomNav';
 export default function ProfileSettings() {
   const { activeProfile, updateActiveProfile, switchLanguage, activeLanguage } = useProfile();
   const { logout } = useAuth();
-  const navigate = useNavigate();
 
   const [name, setName] = useState(activeProfile?.name || '');
   const [nativeLang, setNativeLang] = useState(activeProfile?.nativeLanguage || 'en');

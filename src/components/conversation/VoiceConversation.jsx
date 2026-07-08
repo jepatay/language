@@ -146,8 +146,10 @@ export default function VoiceConversation({ onSwitchText }) {
       await saveMessage(user.uid, activeProfile.id, activeLanguage, userMsg);
 
       const systemPrompt = buildSystemPrompt({ profile: activeProfile, language: activeLanguage, mode: 'voice' });
+      const contextPrefix = summary ? [{ role: 'system', content: `Previous session summary: ${summary}` }] : [];
       const apiMessages = [
         { role: 'system', content: systemPrompt },
+        ...contextPrefix,
         ...newMessages.slice(-MAX_MESSAGES),
       ];
 

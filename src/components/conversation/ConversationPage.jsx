@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../layout/Header';
 import BottomNav from '../layout/BottomNav';

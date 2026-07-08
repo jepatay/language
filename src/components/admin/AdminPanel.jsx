@@ -12,14 +12,6 @@ export default function AdminPanel() {
   const [generatedCode, setGeneratedCode] = useState('');
   const [generating, setGenerating] = useState(false);
 
-  useEffect(() => {
-    if (!userDoc?.isAdmin) {
-      navigate('/');
-      return;
-    }
-    loadUsers();
-  }, [userDoc]);
-
   async function loadUsers() {
     setLoading(true);
     try {
@@ -30,6 +22,14 @@ export default function AdminPanel() {
     }
     setLoading(false);
   }
+
+  useEffect(() => {
+    if (!userDoc?.isAdmin) {
+      navigate('/');
+      return;
+    }
+    loadUsers();
+  }, [userDoc]);
 
   async function toggleActive(uid, currentActive) {
     try {
@@ -94,9 +94,6 @@ export default function AdminPanel() {
           <h3>Registered Users ({users.length})</h3>
           <div className="users-table">
             {users.map(u => {
-              const langs = [];
-              // Collect from all profiles (simplified — stores at user level)
-              const langStr = langs.join(', ') || '—';
               return (
                 <div key={u.id} className={`user-row ${!u.active ? 'inactive' : ''}`}>
                   <div className="user-info">

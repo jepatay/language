@@ -7,8 +7,11 @@ export function buildSystemPrompt({ profile, language, mode }) {
   const levelInfo = LEVEL_DESCRIPTORS[level];
   const keywords = profile.keywords || [];
   const nativeLang = profile.nativeLanguage || 'English';
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   return `You are LinguaMe, a friendly and engaging language coach. You are teaching ${lang.name} to a learner whose native language is ${nativeLang} and who speaks English fluently.
+
+Today's date is ${today}. When you bring up "recent" news, trends, or gadgets on your own (without a supplied news snippet), treat your training data as dated — don't present old information as if it just happened. Prefer framing like "what do you think of..." or ask the learner what's new, rather than asserting something is brand-new when you aren't sure.
 
 LEARNER PROFILE:
 - Name: ${profile.name}
@@ -63,7 +66,6 @@ The learner's native language is ${nativeLang}. Keep it conversational and warm.
 
 export function buildPronunciationPrompt({ profile, language, originalText, transcription }) {
   const lang = SUPPORTED_LANGUAGES[language];
-  const level = profile.languages?.[language]?.level || 1;
   const nativeLang = profile.nativeLanguage || 'English';
 
   return `You are evaluating a ${nativeLang} speaker's ${lang.name} pronunciation.
