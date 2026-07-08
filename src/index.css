@@ -807,6 +807,46 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
   color: var(--text-muted);
 }
 
+.speed-setup { width: 100%; max-width: 380px; margin: 0 auto; padding: 24px 4px; }
+.setup-section { width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; margin-top: 4px; }
+.setup-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lang-grid.three-col { grid-template-columns: repeat(3, 1fr); }
+
+.count-options { display: flex; gap: 8px; }
+.count-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.15s;
+}
+.count-btn:hover { border-color: var(--accent2); }
+.count-btn.selected { border-color: var(--accent); background: rgba(203,166,247,0.1); color: var(--accent); }
+
+.topic-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.topic-chip {
+  padding: 6px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+.topic-chip:hover { border-color: var(--accent2); }
+.topic-chip.selected { border-color: var(--accent); background: rgba(203,166,247,0.12); color: var(--text); }
+
 .loading-card {
   display: flex;
   flex-direction: column;
@@ -878,6 +918,7 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
   border-radius: var(--radius);
   margin-top: 16px;
 }
+.result-actions { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px; }
 .result-card.correct { background: rgba(166,227,161,0.1); border: 1px solid rgba(166,227,161,0.3); }
 .result-card.incorrect { background: rgba(243,139,168,0.1); border: 1px solid rgba(243,139,168,0.3); }
 .result-card p { margin-bottom: 8px; }
@@ -970,6 +1011,7 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 .flash-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 
 .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.choices-grid.single-col { grid-template-columns: 1fr; }
 .choice-btn {
   padding: 14px;
   background: var(--surface);

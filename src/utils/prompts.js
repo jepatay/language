@@ -161,25 +161,43 @@ Respond in JSON:
 }`;
 }
 
-export function buildSpeedRoundPrompt({ language, level, keywords, count = 10 }) {
+const SPEED_ROUND_CONTENT = {
+  word: {
+    noun: 'word',
+    instruction: 'Single vocabulary words — one word each (occasionally a short compound noun).',
+  },
+  phrase: {
+    noun: 'expression',
+    instruction: 'Short expressions or groups of words (2-4 words) — common phrases, idioms, or collocations a learner would actually use, not single words.',
+  },
+  sentence: {
+    noun: 'sentence',
+    instruction: 'Complete short sentences appropriate for the level — full thoughts, not fragments or single words.',
+  },
+};
+
+export function buildSpeedRoundPrompt({ language, level, keywords, count = 10, contentType = 'word' }) {
   const lang = SUPPORTED_LANGUAGES[language];
   const levelInfo = LEVEL_DESCRIPTORS[level];
+  const content = SPEED_ROUND_CONTENT[contentType] || SPEED_ROUND_CONTENT.word;
 
-  return `Generate ${count} vocabulary flashcard pairs for a speed round game.
+  return `Generate ${count} ${content.noun} flashcard pairs for a speed round game.
 Language: ${lang.name}, Level: ${level}/10 (${levelInfo.label})
-Interests: ${keywords.join(', ')}
+Interests: ${keywords.length > 0 ? keywords.join(', ') : 'general topics'}
+
+Content type: ${content.instruction}
 
 Requirements:
-- Words/phrases appropriate for level ${level}
-- Mix content words, action words, and expressions
-- Tie some to the learner's interests
+- Appropriate for level ${level}
+- Tie most of them to the learner's interests listed above
 - Direction: English → ${lang.name}
+- No duplicate or near-duplicate items
 
 Respond in JSON:
 {
   "cards": [
     {
-      "english": "<English word/phrase>",
+      "english": "<English ${content.noun}>",
       "target": "<${lang.name} translation>",
       "hint": "<optional short usage hint>"
     }
