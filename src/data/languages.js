@@ -23,6 +23,14 @@ export const SUPPORTED_LANGUAGES = {
     whisperCode: 'fr',
     ttsVoice: 'shimmer',
   },
+  'de-DE': {
+    code: 'de-DE',
+    name: 'German',
+    nativeName: 'Deutsch',
+    flag: '🇩🇪',
+    whisperCode: 'de',
+    ttsVoice: 'echo',
+  },
 };
 
 export const NATIVE_LANGUAGES = [
