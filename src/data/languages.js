@@ -23,6 +23,14 @@ export const SUPPORTED_LANGUAGES = {
     whisperCode: 'fr',
     ttsVoice: 'shimmer',
   },
+  'de-DE': {
+    code: 'de-DE',
+    name: 'German',
+    nativeName: 'Deutsch',
+    flag: '🇩🇪',
+    whisperCode: 'de',
+    ttsVoice: 'onyx',
+  },
 };
 
 export const NATIVE_LANGUAGES = [
@@ -46,3 +54,7 @@ export const NATIVE_LANGUAGES = [
   { code: 'tr', name: 'Turkish' },
   { code: 'hi', name: 'Hindi' },
 ];
+
+export function getNativeLanguageName(code) {
+  return NATIVE_LANGUAGES.find(l => l.code === code)?.name || 'English';
+}
