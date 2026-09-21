@@ -1,5 +1,5 @@
 import { LEVEL_DESCRIPTORS } from '../data/levelDescriptors';
-import { SUPPORTED_LANGUAGES } from '../data/languages';
+import { SUPPORTED_LANGUAGES, getNativeLanguageName } from '../data/languages';
 
 export function buildSystemPrompt({ profile, language, mode }) {
   const lang = SUPPORTED_LANGUAGES[language];
@@ -201,6 +201,39 @@ Respond in JSON:
       "target": "<${lang.name} translation>",
       "hint": "<optional short usage hint>"
     }
+  ]
+}`;
+}
+
+export function buildTranslationReaderPrompt({ language, nativeLanguage, level, keywords, topic, newsSnippet, count = 8 }) {
+  const lang = SUPPORTED_LANGUAGES[language];
+  const nativeLangName = getNativeLanguageName(nativeLanguage);
+  const levelInfo = LEVEL_DESCRIPTORS[level];
+  const subject = topic || (keywords.length > 0 ? keywords[Math.floor(Math.random() * keywords.length)] : 'something interesting happening in the world');
+
+  const sourceHint = newsSnippet
+    ? `Base it on this real recent news, retold in your own words (do not copy it verbatim): "${newsSnippet}"`
+    : `No live news snippet is available — write original, plausible-sounding content about the topic (don't invent fake specific facts, dates, or statistics; keep it general and true-to-life).`;
+
+  return `Write a short ${count}-sentence piece in ${lang.name} about: ${subject}.
+${sourceHint}
+
+Learner level: ${level}/10 (${levelInfo.label}) — ${levelInfo.description}
+Vocabulary: ${levelInfo.vocabSize}
+
+Requirements:
+- Exactly ${count} sentences, forming one coherent short article/story (not a random list)
+- Each sentence appropriate for level ${level} grammar and vocabulary
+- Natural, engaging writing — like a short news brief or blog snippet, not a textbook
+- Provide a faithful, natural translation of each sentence into ${nativeLangName}
+- Give the piece a short title in ${lang.name} and its ${nativeLangName} translation
+
+Respond in JSON only:
+{
+  "title": "<title in ${lang.name}>",
+  "titleTranslation": "<title in ${nativeLangName}>",
+  "sentences": [
+    { "target": "<sentence in ${lang.name}>", "native": "<same sentence in ${nativeLangName}>" }
   ]
 }`;
 }

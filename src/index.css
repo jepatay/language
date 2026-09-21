@@ -1060,6 +1060,22 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 .correction-word { font-weight: 500; }
 .correction-note { font-size: 12px; color: var(--text-muted); text-align: right; max-width: 60%; }
 
+/* Translation Reader */
+.toggle-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text); }
+.toggle-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); }
+
+.reader-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.reader-title { text-align: center; }
+.reader-title h4 { font-size: 17px; font-weight: 600; }
+.reader-title-translation { font-size: 13px; color: var(--text-muted); font-style: italic; margin-top: 4px; }
+.reader-source-tag { display: inline-block; margin-top: 8px; font-size: 11px; color: var(--accent2); background: rgba(137,180,250,0.1); border: 1px solid rgba(137,180,250,0.3); border-radius: 999px; padding: 3px 10px; }
+
+.sentence-pair { display: flex; flex-direction: column; gap: 10px; padding: 20px 4px; text-align: center; }
+.sentence-native { font-size: 16px; color: var(--text-muted); line-height: 1.5; }
+.sentence-target { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.5; }
+
+.reader-nav { display: flex; justify-content: space-between; align-items: center; }
+
 /* ===== PROFILE SETTINGS ===== */
 .settings-section {
   background: var(--bg2);
