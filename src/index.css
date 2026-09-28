@@ -1074,6 +1074,15 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 .sentence-native { font-size: 16px; color: var(--text-muted); line-height: 1.5; }
 .sentence-target { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.5; }
 
+.speak-controls { display: flex; justify-content: center; gap: 10px; margin-top: 4px; }
+.speak-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 999px;
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; cursor: pointer;
+}
+.speak-btn.active { border-color: var(--accent); color: var(--accent); }
+
 .reader-nav { display: flex; justify-content: space-between; align-items: center; }
 
 /* ===== PROFILE SETTINGS ===== */
