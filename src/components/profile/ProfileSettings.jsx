@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { SUPPORTED_LANGUAGES, NATIVE_LANGUAGES } from '../../data/languages';
@@ -16,6 +16,15 @@ export default function ProfileSettings() {
   const [nativeLang, setNativeLang] = useState(activeProfile?.nativeLanguage || 'en');
   const [keywords, setKeywords] = useState(activeProfile?.keywords || []);
   const [saving, setSaving] = useState(false);
+  const [draftLevels, setDraftLevels] = useState({});
+  const levelTimers = useRef({});
+
+  useEffect(() => {
+    const timers = levelTimers.current;
+    return () => {
+      Object.values(timers).forEach(clearTimeout);
+    };
+  }, []);
 
   if (!activeProfile) return <div className="loading-screen"><div className="spinner" /></div>;
 
@@ -36,9 +45,22 @@ export default function ProfileSettings() {
     setSaving(false);
   }
 
-  async function handleLevelChange(langCode, newLevel) {
-    const level = parseInt(newLevel);
+  function handleLevelDrag(langCode, rawValue) {
+    const level = parseInt(rawValue);
     if (isNaN(level) || level < 1 || level > 10) return;
+    setDraftLevels(prev => ({ ...prev, [langCode]: level }));
+    clearTimeout(levelTimers.current[langCode]);
+    levelTimers.current[langCode] = setTimeout(() => commitLevel(langCode, level), 500);
+  }
+
+  function handleLevelCommit(langCode, rawValue) {
+    const level = parseInt(rawValue);
+    if (isNaN(level) || level < 1 || level > 10) return;
+    clearTimeout(levelTimers.current[langCode]);
+    commitLevel(langCode, level);
+  }
+
+  async function commitLevel(langCode, level) {
     const updated = {
       languages: {
         ...languages,
@@ -107,7 +129,7 @@ export default function ProfileSettings() {
           {Object.entries(languages).map(([code, data]) => {
             const lang = SUPPORTED_LANGUAGES[code];
             if (!lang) return null;
-            const level = data.level || 1;
+            const level = draftLevels[code] ?? (data.level || 1);
             const desc = LEVEL_DESCRIPTORS[level];
             return (
               <div key={code} className="lang-settings-card">
@@ -122,7 +144,9 @@ export default function ProfileSettings() {
                     min={1}
                     max={10}
                     value={level}
-                    onChange={e => handleLevelChange(code, e.target.value)}
+                    onChange={e => handleLevelDrag(code, e.target.value)}
+                    onPointerUp={e => handleLevelCommit(code, e.target.value)}
+                    onKeyUp={e => handleLevelCommit(code, e.target.value)}
                   />
                   <p className="level-desc">{desc?.description}</p>
                 </div>
