@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { chatCompletion, parseJsonResponse, fetchRecentNews } from '../../utils/openai';
+import { chatCompletion, parseJsonResponse, fetchRecentNews, textToSpeech } from '../../utils/openai';
 import { buildTranslationReaderPrompt } from '../../utils/prompts';
 import { saveActivityScore } from '../../firebase/firestore';
 import { SUPPORTED_LANGUAGES } from '../../data/languages';
 import toast from 'react-hot-toast';
 
 const COUNT_OPTIONS = [6, 10, 15];
+const SLOW_SPEED = 0.7;
 
 export default function TranslationReader() {
   const { activeProfile, activeLanguage } = useProfile();
@@ -19,11 +20,59 @@ export default function TranslationReader() {
   const [loading, setLoading] = useState(false);
   const [piece, setPiece] = useState(null);
   const [idx, setIdx] = useState(0);
+  const [speaking, setSpeaking] = useState(null); // null | 'normal' | 'slow'
+  const audioRef = useRef(null);
+  const audioCache = useRef(new Map()); // `${speed}|${text}` -> object URL
+
+  useEffect(() => {
+    const cache = audioCache.current;
+    return () => {
+      audioRef.current?.pause();
+      cache.forEach(url => URL.revokeObjectURL(url));
+      cache.clear();
+    };
+  }, []);
+
+  function stopAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setSpeaking(null);
+  }
+
+  async function speak(text, mode) {
+    if (speaking === mode) {
+      stopAudio();
+      return;
+    }
+    stopAudio();
+    const speed = mode === 'slow' ? SLOW_SPEED : 1;
+    const key = `${speed}|${text}`;
+    setSpeaking(mode);
+    try {
+      let url = audioCache.current.get(key);
+      if (!url) {
+        url = await textToSpeech(text, lang?.ttsVoice || 'nova', speed);
+        audioCache.current.set(key, url);
+      }
+      if (!audioRef.current) audioRef.current = new Audio();
+      const audio = audioRef.current;
+      audio.src = url;
+      audio.onended = () => setSpeaking(null);
+      audio.onerror = () => setSpeaking(null);
+      await audio.play();
+    } catch {
+      toast.error('Could not play audio.');
+      setSpeaking(null);
+    }
+  }
 
   const lang = activeLanguage ? SUPPORTED_LANGUAGES[activeLanguage] : null;
   const keywords = activeProfile.keywords || [];
 
   async function loadPiece() {
+    stopAudio();
     setLoading(true);
     setPhase('reading');
     const level = activeProfile.languages?.[activeLanguage]?.level || 1;
@@ -56,6 +105,7 @@ export default function TranslationReader() {
   }
 
   function next() {
+    stopAudio();
     if (idx + 1 >= piece.sentences.length) {
       setPhase('done');
       saveActivityScore(user.uid, activeProfile.id, activeLanguage, 'translation-reader', piece.sentences.length).catch(() => {});
@@ -65,10 +115,12 @@ export default function TranslationReader() {
   }
 
   function prev() {
+    stopAudio();
     if (idx > 0) setIdx(idx - 1);
   }
 
   function reset() {
+    stopAudio();
     setPiece(null);
     setPhase('setup');
   }
@@ -154,6 +206,22 @@ export default function TranslationReader() {
           <div className="sentence-pair">
             <p className="sentence-native">{sentence.native}</p>
             <p className="sentence-target">{sentence.target}</p>
+            <div className="speak-controls">
+              <button
+                className={`speak-btn ${speaking === 'normal' ? 'active' : ''}`}
+                onClick={() => speak(sentence.target, 'normal')}
+                aria-label={`Listen in ${lang?.name || 'target language'}`}
+              >
+                {speaking === 'normal' ? '⏹' : '🔊'} Listen
+              </button>
+              <button
+                className={`speak-btn ${speaking === 'slow' ? 'active' : ''}`}
+                onClick={() => speak(sentence.target, 'slow')}
+                aria-label="Listen slowly"
+              >
+                {speaking === 'slow' ? '⏹' : '🐢'} Slow
+              </button>
+            </div>
           </div>
 
           <div className="card-counter">{idx + 1} / {piece.sentences.length}</div>

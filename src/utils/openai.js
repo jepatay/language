@@ -40,11 +40,11 @@ export async function transcribeAudio(audioBlob, language) {
   return data.text;
 }
 
-export async function textToSpeech(text, voice = 'nova') {
+export async function textToSpeech(text, voice = 'nova', speed = 1) {
   const res = await apiCall('/audio/speech', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'tts-1', input: text, voice }),
+    body: JSON.stringify({ model: 'tts-1', input: text, voice, speed }),
   });
   const blob = await res.blob();
   return URL.createObjectURL(blob);
