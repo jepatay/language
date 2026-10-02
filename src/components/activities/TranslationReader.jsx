@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useProfile } from '../../contexts/ProfileContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { chatCompletion, parseJsonResponse, fetchRecentNews, textToSpeech } from '../../utils/openai';
+import { chatCompletion, parseJsonResponse, fetchRecentNews } from '../../utils/openai';
 import { buildTranslationReaderPrompt } from '../../utils/prompts';
 import { saveActivityScore } from '../../firebase/firestore';
 import { SUPPORTED_LANGUAGES } from '../../data/languages';
+import { useSpeech } from '../../hooks/useSpeech';
 import toast from 'react-hot-toast';
 
 const COUNT_OPTIONS = [6, 10, 15];
@@ -20,56 +21,10 @@ export default function TranslationReader() {
   const [loading, setLoading] = useState(false);
   const [piece, setPiece] = useState(null);
   const [idx, setIdx] = useState(0);
-  const [speaking, setSpeaking] = useState(null); // null | 'normal' | 'slow'
-  const audioRef = useRef(null);
-  const audioCache = useRef(new Map()); // `${speed}|${text}` -> object URL
-
-  useEffect(() => {
-    const cache = audioCache.current;
-    return () => {
-      audioRef.current?.pause();
-      cache.forEach(url => URL.revokeObjectURL(url));
-      cache.clear();
-    };
-  }, []);
-
-  function stopAudio() {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    setSpeaking(null);
-  }
-
-  async function speak(text, mode) {
-    if (speaking === mode) {
-      stopAudio();
-      return;
-    }
-    stopAudio();
-    const speed = mode === 'slow' ? SLOW_SPEED : 1;
-    const key = `${speed}|${text}`;
-    setSpeaking(mode);
-    try {
-      let url = audioCache.current.get(key);
-      if (!url) {
-        url = await textToSpeech(text, lang?.ttsVoice || 'nova', speed);
-        audioCache.current.set(key, url);
-      }
-      if (!audioRef.current) audioRef.current = new Audio();
-      const audio = audioRef.current;
-      audio.src = url;
-      audio.onended = () => setSpeaking(null);
-      audio.onerror = () => setSpeaking(null);
-      await audio.play();
-    } catch {
-      toast.error('Could not play audio.');
-      setSpeaking(null);
-    }
-  }
 
   const lang = activeLanguage ? SUPPORTED_LANGUAGES[activeLanguage] : null;
   const keywords = activeProfile.keywords || [];
+  const { speakingKey: speaking, speak: speakText, stop: stopAudio } = useSpeech(lang?.ttsVoice || 'nova');
 
   async function loadPiece() {
     stopAudio();
@@ -209,14 +164,14 @@ export default function TranslationReader() {
             <div className="speak-controls">
               <button
                 className={`speak-btn ${speaking === 'normal' ? 'active' : ''}`}
-                onClick={() => speak(sentence.target, 'normal')}
+                onClick={() => speakText(sentence.target, 'normal')}
                 aria-label={`Listen in ${lang?.name || 'target language'}`}
               >
                 {speaking === 'normal' ? '⏹' : '🔊'} Listen
               </button>
               <button
                 className={`speak-btn ${speaking === 'slow' ? 'active' : ''}`}
-                onClick={() => speak(sentence.target, 'slow')}
+                onClick={() => speakText(sentence.target, 'slow', SLOW_SPEED)}
                 aria-label="Listen slowly"
               >
                 {speaking === 'slow' ? '⏹' : '🐢'} Slow
