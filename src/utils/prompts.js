@@ -237,3 +237,51 @@ Respond in JSON only:
   ]
 }`;
 }
+
+export function buildVerbConjugationPrompt({ language, nativeLanguage, level, verbMeaning }) {
+  const lang = SUPPORTED_LANGUAGES[language];
+  const nativeLangName = getNativeLanguageName(nativeLanguage);
+  const levelInfo = LEVEL_DESCRIPTORS[level];
+
+  return `You are a precise ${lang.name} grammar teacher. Build a conjugation card for the ${lang.name} verb meaning "${verbMeaning}".
+If several ${lang.name} verbs fit, pick the most common everyday one.
+
+Learner level: ${level}/10 (${levelInfo.label}). Keep the example sentences at this level: short, natural, everyday.
+
+Tenses — use these, in this order, with the names ${lang.name} grammar books use:
+1. Present
+2. Past — the most common spoken past tense. If ${lang.name} has a second past tense that learners must know (e.g. imperfect vs. perfect), add it as a separate tense right after.
+3. Future — the most common way to talk about the future. If the everyday spoken form differs from the textbook form (e.g. "ir + infinitive"), use the everyday one and mention the other in "note".
+
+Rules:
+- One row per grammatical person, using the standard ${lang.name} pronouns in the usual order (include the polite/plural forms the language commonly uses).
+- "form" is the pronoun plus the conjugated verb exactly as it is written (e.g. "ich habe gegessen").
+- If ${lang.name} does not conjugate by person, still give one row per pronoun with the full form, and say so in "note".
+- Every row gets its own different example sentence that uses exactly that form, plus a natural ${nativeLangName} translation.
+- For languages not written in Latin script, add a romanization in "romanization" (otherwise use null).
+- Double-check every conjugation; accuracy matters more than variety.
+
+Respond in JSON only:
+{
+  "infinitive": "<verb in ${lang.name}>",
+  "translation": "<meaning in ${nativeLangName}>",
+  "romanization": <string or null>,
+  "irregular": <true|false>,
+  "note": "<one short tip in ${nativeLangName} about this verb, or empty string>",
+  "tenses": [
+    {
+      "name": "<tense name in ${lang.name}>",
+      "nameTranslation": "<tense name in ${nativeLangName}>",
+      "rows": [
+        {
+          "pronoun": "<pronoun>",
+          "form": "<pronoun + conjugated verb>",
+          "romanization": <string or null>,
+          "example": "<example sentence in ${lang.name}>",
+          "exampleTranslation": "<translation in ${nativeLangName}>"
+        }
+      ]
+    }
+  ]
+}`;
+}
