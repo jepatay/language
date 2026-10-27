@@ -3,10 +3,12 @@ import Header from '../layout/Header';
 import BottomNav from '../layout/BottomNav';
 import PronunciationActivity from './PronunciationActivity';
 import TranslationReader from './TranslationReader';
+import VerbPractice from './VerbPractice';
 import { useProfile } from '../../contexts/ProfileContext';
 
 const ACTIVITIES = [
   { id: 'pronunciation', label: 'Pronunciation', icon: '🎯', desc: 'Read aloud and get feedback' },
+  { id: 'verbs', label: 'Verbs', icon: '🔤', desc: 'Top 30 verbs in the 4 key tenses, with examples' },
   { id: 'translation-reader', label: 'Translation Reader', icon: '📰', desc: 'Read short pieces, sentence by sentence with translation' },
 ];
 
@@ -35,6 +37,7 @@ export default function ActivitiesPage() {
             <button className="back-btn" onClick={() => setActiveActivity(null)}>← Back to Activities</button>
             {activeActivity === 'pronunciation' && <PronunciationActivity />}
             {activeActivity === 'translation-reader' && <TranslationReader />}
+            {activeActivity === 'verbs' && <VerbPractice />}
           </>
         ) : (
           <div className="games-grid">

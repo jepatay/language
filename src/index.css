@@ -1085,6 +1085,31 @@ label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
 
 .reader-nav { display: flex; justify-content: space-between; align-items: center; }
 
+/* Verbs */
+.verb-intro { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+.verb-search { width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--bg2); border: 1px solid var(--border); color: var(--text); font-size: 15px; margin-bottom: 12px; }
+.verb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.verb-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); text-align: left; color: var(--text); cursor: pointer; }
+.verb-card:hover { border-color: var(--accent); }
+.verb-rank { position: absolute; top: 6px; right: 8px; font-size: 10px; color: var(--text-dim); }
+.verb-inf { font-size: 16px; font-weight: 600; }
+.verb-gloss { font-size: 12px; color: var(--text-muted); }
+.verb-back { margin-bottom: 12px; }
+.verb-hero { text-align: center; margin-bottom: 16px; }
+.verb-hero h3 { font-size: 26px; font-weight: 700; color: var(--accent); }
+.verb-roman { font-size: 13px; color: var(--text-dim); }
+.verb-meaning { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+.tense-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.conj-list { display: flex; flex-direction: column; gap: 8px; }
+.conj-row { display: flex; align-items: center; gap: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+.conj-main { flex: 1; min-width: 0; }
+.conj-form { font-size: 15px; font-weight: 700; color: var(--accent2); }
+.conj-example { font-size: 15px; color: var(--text); margin-top: 2px; }
+.conj-roman { font-size: 12px; color: var(--text-dim); }
+.conj-translation { font-size: 13px; color: var(--text-muted); font-style: italic; }
+.conj-speak { padding: 8px 10px; flex-shrink: 0; }
+.verb-refresh { display: block; margin: 16px auto 0; }
+
 /* ===== PROFILE SETTINGS ===== */
 .settings-section {
   background: var(--bg2);

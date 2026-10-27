@@ -237,3 +237,37 @@ Respond in JSON only:
   ]
 }`;
 }
+
+export function buildVerbConjugationPrompt({ language, nativeLanguage, level, keywords, verb, tenses }) {
+  const lang = SUPPORTED_LANGUAGES[language];
+  const nativeLangName = getNativeLanguageName(nativeLanguage);
+  const levelInfo = LEVEL_DESCRIPTORS[level];
+
+  return `Conjugate the ${lang.name} verb "${verb.infinitive}" (${verb.meaning}) for a learner whose native language is ${nativeLangName}.
+
+Learner level: ${level}/10 (${levelInfo.label}) — keep example vocabulary appropriate for this level.
+Learner interests (use some of them for variety, not all examples): ${keywords.length > 0 ? keywords.join(', ') : 'everyday life'}
+
+Tenses, in this order: ${tenses.map(t => `"${t}"`).join(', ')}
+
+For each tense, give one row per grammatical person in the standard order used to teach ${lang.name} (typically I, you, he/she, we, you plural, they — use the natural pronoun set for ${lang.name}; for a tense where some persons don't exist, such as the imperative, include only the valid ones).
+
+Each row:
+- "pronoun": the subject pronoun in ${lang.name} (empty string if the language drops it)
+- "form": the full conjugated form including any auxiliary, exactly as used with that pronoun (e.g. French passé composé "j'ai mangé")
+- "example": a short, natural, everyday sentence in ${lang.name} that uses exactly that form
+- "translation": a natural translation of the example into ${nativeLangName}
+${lang.code.match(/^(zh|ja|ko|ar|ru|hi)/) ? '- "romanization": the romanization of the example sentence\n' : ''}
+Rules:
+- Conjugations must be 100% grammatically correct
+- EVERY example sentence must be different: different object, place, or situation — never reuse the same sentence pattern with just the pronoun swapped
+- Keep each example under 12 words
+
+Respond in JSON only:
+{
+  "meaning": "<the verb's meaning in ${nativeLangName}, e.g. the infinitive>",
+  "tenses": [
+    { "name": "<tense name as given>", "rows": [ { "pronoun": "...", "form": "...", "example": "...", "translation": "..." } ] }
+  ]
+}`;
+}
